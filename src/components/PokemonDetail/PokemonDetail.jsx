@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import EvolutionChain from "../EvolutionChain/EvolutionChain";
 
 export default function PokemonDetail({ pokemon }) {
   const [data, setData] = useState(null);
@@ -45,7 +46,7 @@ export default function PokemonDetail({ pokemon }) {
           </span>
         ))}
       </div>
-      <div className="text-left w-full max-w-md">
+      <div className="text-left w-full max-w-md mb-8">
         <h3 className="font-bold text-lg mb-2">Information</h3>
         <p>
           <b>Weight:</b> {data.weight / 10} kg
@@ -58,6 +59,7 @@ export default function PokemonDetail({ pokemon }) {
           {data.abilities.map((a) => a.ability.name).join(", ")}
         </p>
       </div>
+      <EvolutionChain speciesUrl={data.species.url} />
     </div>
   );
 }
