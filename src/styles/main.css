@@ -45,3 +45,34 @@ body {
   margin: 0 auto;
   position: relative;
 }
+
+.pokemon-search-bar {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: #f7eaea;
+  border-radius: 16px;
+  padding: 0 20px;
+  height: 40px;
+  width: 300px;
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  z-index: 2;
+}
+
+.pokemon-search-icon {
+  margin-right: 12px;
+  font-size: 1.4em;
+  color: #b23334;
+}
+
+.pokemon-search-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #b23334;
+  font-size: 1em;
+  width: 100%;
+  font-family: inherit;
+}

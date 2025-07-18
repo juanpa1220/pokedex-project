@@ -8,13 +8,13 @@ function getSpriteUrl(idx) {
   return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${idx}.png`;
 }
 
-export default function PokemonList({ onSelect, selected }) {
+export default function PokemonList({ onSelect, selected, search }) {
   const [pokemons, setPokemons] = useState([]);
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const listRef = useRef();
-  
+
   useEffect(() => {
     loadMore();
   }, []);
@@ -27,14 +27,15 @@ export default function PokemonList({ onSelect, selected }) {
       if (
         !loading &&
         hasMore &&
-        list.scrollTop + list.clientHeight >= list.scrollHeight - 60
+        list.scrollTop + list.clientHeight >= list.scrollHeight - 60 &&
+        search === ""
       ) {
         loadMore();
       }
     }
     list.addEventListener("scroll", onScroll);
     return () => list.removeEventListener("scroll", onScroll);
-  }, [loading, hasMore, pokemons]);
+  }, [loading, hasMore, pokemons, search]);
 
   function loadMore() {
     setLoading(true);
@@ -46,9 +47,18 @@ export default function PokemonList({ onSelect, selected }) {
     });
   }
 
+  // Filter loaded pokemons by search query
+  const filteredPokemons = pokemons.filter((pokemon) => {
+    const nameMatch = pokemon.name.toLowerCase().includes(search.toLowerCase());
+    return nameMatch;
+  });
+
   return (
     <div className="pokemon-list" ref={listRef}>
-      {pokemons.map((pokemon, id) => (
+      {filteredPokemons.length === 0 && (
+        <div className="pokemon-list-msg">No results</div>
+      )}
+      {filteredPokemons.map((pokemon, id) => (
         <div
           key={pokemon.name}
           className={`pokemon-list-item ${
@@ -71,7 +81,9 @@ export default function PokemonList({ onSelect, selected }) {
         </div>
       ))}
       {loading && <div className="pokemon-list-msg">Loading...</div>}
-      {!hasMore && <div className="pokemon-list-msg">End of list</div>}
+      {!hasMore && search === "" && (
+        <div className="pokemon-list-msg">End of list</div>
+      )}
     </div>
   );
 }

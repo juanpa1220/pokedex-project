@@ -4,6 +4,16 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  overflow: auto;
+  scrollbar-color: #d25d5d #b23334;
+}
+.pokemon-detail::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.pokemon-detail::-webkit-scrollbar-thumb {
+  background: #d25d5d;
+  border-radius: 8px;
 }
 
 .pokemon-main-img {
@@ -62,7 +72,7 @@
   width: 96%;
   height: 2px;
   background: #d25d5d;
-  margin: 24px auto 24px auto;
+  margin: 12px auto 12px auto;
 }
 
 .pokemon-detail-warning-msg {
