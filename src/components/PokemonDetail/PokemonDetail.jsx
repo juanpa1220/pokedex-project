@@ -1,64 +1,108 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import EvolutionChain from "../EvolutionChain/EvolutionChain";
+import "./PokemonDetail.css";
+
+async function getEggGroups(speciesUrl) {
+  try {
+    const response = await axios.get(speciesUrl);
+    const eggGroups = response.data.egg_groups;
+    return eggGroups.map((group) => group.name).join(", ");
+  } catch (error) {
+    console.error("Error fetching egg groups:", error);
+    return "Unknown";
+  }
+}
+
+async function getGenera(speciesUrl) {
+  try {
+    const response = await axios.get(speciesUrl);
+    const genera = response.data.genera;
+    // Find English genus or return "Unknown" if not found
+    const englishGenus = genera.find((genus) => genus.language.name === "en");
+    return englishGenus ? englishGenus.genus : "Unknown";
+  } catch (error) {
+    console.error("Error fetching genera:", error);
+    return "Unknown";
+  }
+}
 
 export default function PokemonDetail({ pokemon }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [eggGroups, setEggGroups] = useState("Loading...");
+  const [species, setSpecies] = useState("Loading...");
 
   useEffect(() => {
     if (!pokemon) {
       setData(null);
+      setEggGroups("Loading...");
+      setSpecies("Loading...");
       return;
     }
     setLoading(true);
     axios.get(pokemon.url).then((res) => {
       setData(res.data);
       setLoading(false);
+      getEggGroups(res.data.species.url).then(setEggGroups);
+      getGenera(res.data.species.url).then(setSpecies);
     });
   }, [pokemon]);
 
   if (!pokemon) {
     return (
-      <div className="h-full flex items-center justify-center text-gray-500">
-        Select a Pokemon from the list
+      <div className="pokemon-detail">
+        <div className="pokemon-detail-warning-msg">
+          Select a Pokémon from the list
+        </div>
       </div>
     );
   }
-  if (loading) return <div>Loading...</div>;
+  if (loading)
+    return (
+      <div className="pokemon-detail">
+        <div className="pokemon-detail-warning-msg">Loading...</div>
+      </div>
+    );
   if (!data) return null;
 
   return (
-    <div className="bg-white rounded-xl h-full p-6 shadow flex flex-col items-center">
+    <div className="pokemon-detail">
       <img
         src={data.sprites.front_default}
         alt={data.name}
-        className="w-40 h-40"
+        className="pokemon-main-img"
       />
-      <h2 className="text-3xl font-bold mb-4 capitalize">{data.name}</h2>
-      <div className="flex gap-2 mb-4">
+      <div className="pokemon-info-title">{data.name}</div>
+      <div className="pokemon-types">
         {data.types.map(({ type }) => (
-          <span
-            key={type.name}
-            className="bg-red-100 text-red-800 px-4 py-1 rounded-full capitalize"
-          >
+          <span key={type.name} className="pokemon-type">
             {type.name}
           </span>
         ))}
       </div>
-      <div className="text-left w-full max-w-md mb-8">
-        <h3 className="font-bold text-lg mb-2">Information</h3>
-        <p>
-          <b>Weight:</b> {data.weight / 10} kg
-        </p>
-        <p>
-          <b>Height:</b> {data.height / 10} m
-        </p>
-        <p>
-          <b>Abilities:</b>{" "}
-          {data.abilities.map((a) => a.ability.name).join(", ")}
-        </p>
+      <div className="pokemon-info">
+        <div className="pokemon-info-title">Information</div>
+        <div className="pokemon-info-list">
+          <p>
+            <b>Weight:</b> {data.weight / 10} kg
+          </p>
+          <p>
+            <b>Height:</b> {data.height / 10} m
+          </p>
+          <p>
+            <b>Species:</b> {species}
+          </p>
+          <p>
+            <b>Egg Groups:</b> {eggGroups}
+          </p>
+          <p>
+            <b>Abilities:</b>{" "}
+            {data.abilities.map((a) => a.ability.name).join(", ")}
+          </p>
+        </div>
       </div>
+      <div className="pokemon-detail-separator"></div>
       <EvolutionChain speciesUrl={data.species.url} />
     </div>
   );

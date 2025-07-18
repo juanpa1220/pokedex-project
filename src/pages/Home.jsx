@@ -1,16 +1,17 @@
-import React from "react";
-import PokemonList from "../components/PokemonList/PokemonList";
-import PokemonDetail from "../components/PokemonDetail/PokemonDetail";
+import React from 'react';
+import PokemonList from '../components/PokemonList/PokemonList';
+import PokemonDetail from '../components/PokemonDetail/PokemonDetail';
+import '../styles/main.css';
 
 export default function Home() {
   const [selectedPokemon, setSelectedPokemon] = React.useState(null);
 
   return (
-    <div className="flex h-screen p-4 gap-4">
-      <div className="w-1/3">
-        <PokemonList onSelect={setSelectedPokemon} />
+    <div className="main-panels">
+      <div className="panel left-panel">
+        <PokemonList onSelect={setSelectedPokemon} selected={selectedPokemon} />
       </div>
-      <div className="flex-1">
+      <div className="panel right-panel">
         <PokemonDetail pokemon={selectedPokemon} />
       </div>
     </div>

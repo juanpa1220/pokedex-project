@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import './EvolutionChain.css';
 
 function getEvolutionArray(chain) {
   const evoArray = [];
@@ -9,11 +10,7 @@ function getEvolutionArray(chain) {
       name: current.species.name,
       url: current.species.url,
     });
-    if (
-      current.evolves_to &&
-      Array.isArray(current.evolves_to) &&
-      current.evolves_to.length > 0
-    ) {
+    if (current.evolves_to && Array.isArray(current.evolves_to) && current.evolves_to.length > 0) {
       current = current.evolves_to[0];
     } else {
       current = null;
@@ -30,24 +27,20 @@ export default function EvolutionChain({ speciesUrl }) {
   useEffect(() => {
     if (!speciesUrl) return;
     setLoading(true);
-    // Get species data to find the evolution_chain URL
-    axios
-      .get(speciesUrl)
-      .then((res) => res.data.evolution_chain.url)
-      // Fetch the evolution chain
-      .then((chainUrl) => axios.get(chainUrl))
-      .then((res) => {
+    axios.get(speciesUrl)
+      .then(res => res.data.evolution_chain.url)
+      .then(chainUrl => axios.get(chainUrl))
+      .then(res => {
         const evoArr = getEvolutionArray(res.data.chain);
         setEvolution(evoArr);
         return Promise.all(
-          evoArr.map((evo) =>
-            axios
-              .get(`https://pokeapi.co/api/v2/pokemon/${evo.name}`)
-              .then((r) => [evo.name, r.data.sprites.front_default])
+          evoArr.map(evo =>
+            axios.get(`https://pokeapi.co/api/v2/pokemon/${evo.name}`)
+              .then(r => [evo.name, r.data.sprites.front_default])
           )
         );
       })
-      .then((results) => {
+      .then(results => {
         const imgs = {};
         results.forEach(([name, img]) => {
           imgs[name] = img;
@@ -59,25 +52,25 @@ export default function EvolutionChain({ speciesUrl }) {
   }, [speciesUrl]);
 
   if (!speciesUrl) return null;
-  if (loading) return <div>Loading Evolution Chain...</div>;
-  if (!evolution.length) return <div>No evolution data available.</div>;
+  if (loading) return <div className="evolution-chain-container">Loading Evolution Chain...</div>;
+  if (!evolution.length) return <div className="evolution-chain-container">No evolution data available.</div>;
 
   return (
-    <div className="mt-8">
-      <h3 className="text-xl font-bold mb-4 text-center">Evolution Chain</h3>
-      <div className="flex items-center justify-center gap-4">
+    <div className="evolution-chain-container">
+      <div className="evolution-chain-title">Evolution Chain</div>
+      <div className="evolution-chain-list">
         {evolution.map((evo, idx) => (
           <React.Fragment key={evo.name}>
-            <div className="flex flex-col items-center">
+            <div className="evolution-pokemon">
               <img
                 src={images[evo.name]}
                 alt={evo.name}
-                className="w-24 h-24 mb-2"
+                className="evolution-pokemon-img"
               />
-              <span className="capitalize font-medium">{evo.name}</span>
+              <span className="evolution-pokemon-name">{evo.name}</span>
             </div>
             {idx !== evolution.length - 1 && (
-              <span className="text-2xl mx-2">→</span>
+              <span className="evolution-arrow">→</span>
             )}
           </React.Fragment>
         ))}

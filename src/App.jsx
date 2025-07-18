@@ -1,8 +1,9 @@
 import Home from "./pages/Home";
+import "./styles/main.css";
 
 function App() {
   return (
-    <div className="min-h-screen bg-red-200">
+    <div className="app-container">
       <Home />
     </div>
   );
