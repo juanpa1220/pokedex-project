@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { getPokemonList } from "../../services/pokeapi";
 import "./PokemonList.css";
+
+const BATCH_SIZE = 40;
 
 function getSpriteUrl(idx) {
   return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${idx}.png`;
@@ -8,13 +10,44 @@ function getSpriteUrl(idx) {
 
 export default function PokemonList({ onSelect, selected }) {
   const [pokemons, setPokemons] = useState([]);
-
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const listRef = useRef();
+  
   useEffect(() => {
-    getPokemonList(0, 200).then(setPokemons);
+    loadMore();
   }, []);
 
+  useEffect(() => {
+    const list = listRef.current;
+    if (!list) return;
+
+    function onScroll() {
+      if (
+        !loading &&
+        hasMore &&
+        list.scrollTop + list.clientHeight >= list.scrollHeight - 60
+      ) {
+        loadMore();
+      }
+    }
+    list.addEventListener("scroll", onScroll);
+    return () => list.removeEventListener("scroll", onScroll);
+  }, [loading, hasMore, pokemons]);
+
+  function loadMore() {
+    setLoading(true);
+    getPokemonList(offset, BATCH_SIZE).then((newBatch) => {
+      if (newBatch.length < BATCH_SIZE) setHasMore(false);
+      setPokemons((prev) => [...prev, ...newBatch]);
+      setOffset((prev) => prev + BATCH_SIZE);
+      setLoading(false);
+    });
+  }
+
   return (
-    <div className="pokemon-list">
+    <div className="pokemon-list" ref={listRef}>
       {pokemons.map((pokemon, id) => (
         <div
           key={pokemon.name}
@@ -37,6 +70,8 @@ export default function PokemonList({ onSelect, selected }) {
           </span>
         </div>
       ))}
+      {loading && <div className="pokemon-list-msg">Loading...</div>}
+      {!hasMore && <div className="pokemon-list-msg">End of list</div>}
     </div>
   );
 }
