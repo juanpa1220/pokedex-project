@@ -41,10 +41,28 @@
   font-weight: 500;
 }
 
+.pokemon-detail-top-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  gap: 36px;
+  margin-bottom: 36px;
+}
+
+.pokemon-detail-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 260px;
+}
+
 .pokemon-info {
   text-align: left;
-  width: 370px;
-  margin: 0 auto 34px auto;
+  width: 320px;
+  margin: 0;
+  padding: 0;
 }
 
 .pokemon-info-title {
@@ -57,6 +75,7 @@
 .pokemon-info-list {
   margin: 0;
   padding: 0;
+  margin-bottom: 32px;
 }
 
 .pokemon-info-list p {

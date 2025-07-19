@@ -18,7 +18,6 @@ const getGenera = async (speciesUrl) => {
   try {
     const response = await axios.get(speciesUrl);
     const genera = response.data.genera;
-    // Find English genus or return "Unknown" if not found
     const englishGenus = genera.find((genus) => genus.language.name === "en");
     return englishGenus ? englishGenus.genus : "Unknown";
   } catch (error) {
@@ -68,38 +67,42 @@ export default function PokemonDetail({ pokemon }) {
 
   return (
     <div className="pokemon-detail">
-      <img
-        src={data.sprites.front_default}
-        alt={data.name}
-        className="pokemon-main-img"
-      />
-      <div className="pokemon-info-title">{data.name}</div>
-      <div className="pokemon-types">
-        {data.types.map(({ type }) => (
-          <span key={type.name} className="pokemon-type">
-            {type.name}
-          </span>
-        ))}
-      </div>
-      <div className="pokemon-info">
-        <div className="pokemon-info-title">Information</div>
-        <div className="pokemon-info-list">
-          <p>
-            <b>Weight:</b> {data.weight / 10} kg
-          </p>
-          <p>
-            <b>Height:</b> {data.height / 10} m
-          </p>
-          <p>
-            <b>Species:</b> {species}
-          </p>
-          <p>
-            <b>Egg Groups:</b> {eggGroups}
-          </p>
-          <p>
-            <b>Abilities:</b>{" "}
-            {data.abilities.map((a) => a.ability.name).join(", ")}
-          </p>
+      <div className="pokemon-detail-top-row">
+        <div className="pokemon-detail-main">
+          <img
+            src={data.sprites.front_default}
+            alt={data.name}
+            className="pokemon-main-img"
+          />
+          <div className="pokemon-info-title">{data.name}</div>
+          <div className="pokemon-types">
+            {data.types.map(({ type }) => (
+              <span key={type.name} className="pokemon-type">
+                {type.name}
+              </span>
+            ))}
+          </div>
+        </div>
+        <div className="pokemon-info">
+          <div className="pokemon-info-title">Information</div>
+          <div className="pokemon-info-list">
+            <p>
+              <b>Weight:</b> {data.weight / 10} kg
+            </p>
+            <p>
+              <b>Height:</b> {data.height / 10} m
+            </p>
+            <p>
+              <b>Species:</b> {species}
+            </p>
+            <p>
+              <b>Egg Groups:</b> {eggGroups}
+            </p>
+            <p>
+              <b>Abilities:</b>{" "}
+              {data.abilities.map((a) => a.ability.name).join(", ")}
+            </p>
+          </div>
         </div>
       </div>
       <div className="pokemon-detail-separator"></div>
