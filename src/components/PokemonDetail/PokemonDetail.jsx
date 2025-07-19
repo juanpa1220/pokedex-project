@@ -3,7 +3,7 @@ import axios from "axios";
 import EvolutionChain from "../EvolutionChain/EvolutionChain";
 import "./PokemonDetail.css";
 
-async function getEggGroups(speciesUrl) {
+const getEggGroups = async (speciesUrl) => {
   try {
     const response = await axios.get(speciesUrl);
     const eggGroups = response.data.egg_groups;
@@ -12,9 +12,9 @@ async function getEggGroups(speciesUrl) {
     console.error("Error fetching egg groups:", error);
     return "Unknown";
   }
-}
+};
 
-async function getGenera(speciesUrl) {
+const getGenera = async (speciesUrl) => {
   try {
     const response = await axios.get(speciesUrl);
     const genera = response.data.genera;
@@ -25,7 +25,7 @@ async function getGenera(speciesUrl) {
     console.error("Error fetching genera:", error);
     return "Unknown";
   }
-}
+};
 
 export default function PokemonDetail({ pokemon }) {
   const [data, setData] = useState(null);

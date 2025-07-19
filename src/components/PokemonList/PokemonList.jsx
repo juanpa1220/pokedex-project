@@ -1,64 +1,101 @@
 import { useEffect, useState, useRef } from "react";
-import { getPokemonList } from "../../services/pokeapi";
+import {
+  getPokemonList,
+  getSpriteUrl,
+  getTotalPokemonCount,
+} from "../../services/pokeapi";
 import "./PokemonList.css";
 
 const BATCH_SIZE = 40;
-
-function getSpriteUrl(idx) {
-  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${idx}.png`;
-}
 
 export default function PokemonList({ onSelect, selected, search }) {
   const [pokemons, setPokemons] = useState([]);
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [allPokemons, setAllPokemons] = useState(null);
+  const [totalPokemonCount, setTotalPokemonCount] = useState(null);
   const listRef = useRef();
 
+  // Fetch total count of Pokémon
   useEffect(() => {
-    loadMore();
+    getTotalPokemonCount().then(setTotalPokemonCount);
   }, []);
 
+  // Load initial batch
   useEffect(() => {
+    if (!search && totalPokemonCount) {
+      setPokemons([]);
+      setOffset(0);
+      setHasMore(true);
+      setAllPokemons(null);
+      loadMore(0);
+    }
+  }, [search, totalPokemonCount]);
+
+  // Load all Pokemons for search
+  useEffect(() => {
+    if (search && totalPokemonCount && !allPokemons) {
+      setLoading(true);
+      getPokemonList(0, totalPokemonCount).then((results) => {
+        setAllPokemons(results);
+        setLoading(false);
+      });
+    }
+  }, [search, allPokemons, totalPokemonCount]);
+
+  // Infinite scroll handler (disabled in search mode)
+  useEffect(() => {
+    if (search) return;
     const list = listRef.current;
     if (!list) return;
 
-    function onScroll() {
+    const onScroll = () => {
       if (
         !loading &&
         hasMore &&
-        list.scrollTop + list.clientHeight >= list.scrollHeight - 60 &&
-        search === ""
+        list.scrollTop + list.clientHeight >= list.scrollHeight - 60
       ) {
-        loadMore();
+        loadMore(offset);
       }
-    }
+    };
     list.addEventListener("scroll", onScroll);
     return () => list.removeEventListener("scroll", onScroll);
-  }, [loading, hasMore, pokemons, search]);
+  }, [loading, hasMore, pokemons, offset, search]);
 
-  function loadMore() {
+  const loadMore = (currentOffset) => {
     setLoading(true);
-    getPokemonList(offset, BATCH_SIZE).then((newBatch) => {
-      if (newBatch.length < BATCH_SIZE) setHasMore(false);
-      setPokemons((prev) => [...prev, ...newBatch]);
+    getPokemonList(currentOffset, BATCH_SIZE).then((batch) => {
+      if (batch.length < BATCH_SIZE) setHasMore(false);
+      setPokemons((prev) => [...prev, ...batch]);
       setOffset((prev) => prev + BATCH_SIZE);
       setLoading(false);
     });
-  }
+  };
 
-  // Filter loaded pokemons by search query
-  const filteredPokemons = pokemons.filter((pokemon) => {
-    const nameMatch = pokemon.name.toLowerCase().includes(search.toLowerCase());
-    return nameMatch;
-  });
+  let listToShow = [];
+  let getIndex = (i) => i + 1; // For search mode
+
+  if (!search) {
+    listToShow = pokemons;
+    // For infinite scroll
+    getIndex = (i) => offset - pokemons.length + i + 1;
+  } else if (allPokemons) {
+    listToShow = allPokemons.filter((pokemon, i) => {
+      const nameMatch = pokemon.name
+        .toLowerCase()
+        .includes(search.toLowerCase());
+      return nameMatch;
+    });
+  }
 
   return (
     <div className="pokemon-list" ref={listRef}>
-      {filteredPokemons.length === 0 && (
+      {loading && <div className="pokemon-list-msg">Loading...</div>}
+      {listToShow.length === 0 && !loading && (
         <div className="pokemon-list-msg">No results</div>
       )}
-      {filteredPokemons.map((pokemon, id) => (
+      {listToShow.map((pokemon, i) => (
         <div
           key={pokemon.name}
           className={`pokemon-list-item ${
@@ -68,7 +105,7 @@ export default function PokemonList({ onSelect, selected, search }) {
         >
           <span className="pokemon-name">
             <img
-              src={getSpriteUrl(id + 1)}
+              src={getSpriteUrl(getIndex(i))}
               className="pokemon-icon"
               alt={pokemon.name}
               loading="lazy"
@@ -76,12 +113,11 @@ export default function PokemonList({ onSelect, selected, search }) {
             {pokemon.name}
           </span>
           <span className="pokemon-number">
-            #{String(id + 1).padStart(3, "0")}
+            #{String(getIndex(i)).padStart(3, "0")}
           </span>
         </div>
       ))}
-      {loading && <div className="pokemon-list-msg">Loading...</div>}
-      {!hasMore && search === "" && (
+      {!hasMore && !search && (
         <div className="pokemon-list-msg">End of list</div>
       )}
     </div>
