@@ -20,7 +20,7 @@ A functional Pokédex built with React, designed to replicate a provided design 
 ### Prerequisites
 
 - **Node.js** (v18+ recommended)
-- **npm** or **yarn**
+- **npm**
 
 ### Installation
 
@@ -33,18 +33,18 @@ A functional Pokédex built with React, designed to replicate a provided design 
 2. **Install dependencies:**
    ```sh
    npm install
-   # or
-   yarn install
    ```
 
 3. **Start development server:**
    ```sh
    npm run dev
-   # or
-   yarn dev
    ```
 
-   The app will be available at [http://localhost:3000](http://localhost:3000).
+   The app will be available at [http://localhost:5173](http://localhost:5173).
+
+3. **Run tests:**
+   ```sh
+   npm test
 
 ---
 
